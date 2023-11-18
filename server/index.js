@@ -59,7 +59,7 @@ app.route('/register')
             return res.status(200).json({ message: 'Registration successful', token });
         } catch (error) {
             console.error('Error registering user:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error });
         }
     });
 
@@ -83,7 +83,7 @@ app.route("/login")
 
         if (!passwordMatch) {
             // Incorrect password
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid password' });
         }
 
         // If the email and password are valid, generate a token
@@ -126,7 +126,7 @@ app.route('/compose')
             res.status(200).json({ message: 'Secret created successfully', secretId: newSecret._id });
         } catch (error) {
             console.error('Error creating secret:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error });
         }
     });
 
@@ -152,7 +152,7 @@ app.route('/secret/:secretId')
             res.status(200).json({ content: secret.content, comments: allComments });
         } catch (error) {
             console.error('Error fetching secret:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error });
         }
     })
     .post(async (req, res) => {
@@ -174,7 +174,7 @@ app.route('/secret/:secretId')
             res.status(200).json({ message: 'Comment created successfully', commentId: newComment._id });
         } catch (error) {
             console.error('Error creating comment:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error });
         }
     });
 
@@ -189,7 +189,7 @@ app.route('/home')
           res.status(200).json({ secrets });
         } catch (error) {
           console.error('Error fetching secrets:', error);
-          res.status(500).json({ error: 'Internal Server Error' });
+          res.status(500).json({ error });
         }
     });
 
@@ -207,7 +207,7 @@ app.route("/:uid")
             res.status(200).json({message: "Loaded successfully", userSecrets});
         } catch (error) {
             console.error('Error fetching secrets:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error });
         }
     });
 

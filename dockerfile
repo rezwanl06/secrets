@@ -29,4 +29,4 @@ EXPOSE 5000
 ENV NODE_ENV=production
 
 # Command to run your application
-CMD ["npm", "start"]
+CMD ["sh", "-c", "cd server && npm run server"]
