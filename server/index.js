@@ -37,7 +37,6 @@ app.route('/register')
         const { username, email, password } = req.body;
 
         try {
-            console.log(`User with username: ${username}, email: ${email} tried to register\n`);
             // Check if the username already exists
             const existingUser = await User.findOne({ email });
 
@@ -143,7 +142,6 @@ app.route('/secret/:secretId')
 
             // Fetch comments by secretId
             const allComments = await Comment.find({ secret: secretId }).sort({ createdAt: -1 });
-            console.log(`${allComments}`);
             
             if (!secret) {
                 // Secret not found
@@ -162,7 +160,6 @@ app.route('/secret/:secretId')
         const { content, username } = req.body;
 
         try {
-            console.log(`${username}`);
             // Create a new comment
             const newComment = new Comment({
             content,
@@ -196,7 +193,7 @@ app.route('/home')
         }
     });
 
-    
+
 // UserId route
 app.route("/:uid")
     .get(async (req, res) => {

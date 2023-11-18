@@ -59,7 +59,7 @@ const Compose = () => {
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="secretContent">Secret Content:</label>
+          <label htmlFor="secretContent">Secret:</label>
           <textarea
             className="form-control"
             name="secretContent"
@@ -69,7 +69,7 @@ const Compose = () => {
           />
         </div>
         <button type="submit" className="btn btn-dark">Post</button>
-        <button type="button" className="btn btn-dark" onClick={handleCancel}>Cancel</button>
+        <button type="button" className="btn btn-outline-dark" onClick={handleCancel} style={{ marginLeft: '4%' }}>Cancel</button>
       </form>
     </div>
   );

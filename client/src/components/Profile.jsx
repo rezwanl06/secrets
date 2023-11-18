@@ -4,6 +4,10 @@ import jwt_decode from 'jwt-decode';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import SecretPost from './SecretPost';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+
+
 const Profile = () => {
   const [userSecrets, setUserSecrets] = useState([]);
   const token = localStorage.getItem('token');
@@ -36,7 +40,9 @@ const Profile = () => {
   return (
     <div className="container mt-5">
       <h2>Your Secrets</h2>
-      <Link to="/home" className="btn btn-dark">Home</Link>
+      <Link to="/home" className="btn btn-dark home-navigator">
+        <FontAwesomeIcon icon={faHome} /> 
+      </Link>
       {userSecrets.length === 0 ? (
         <p>No secrets posted yet.</p>
       ) : (

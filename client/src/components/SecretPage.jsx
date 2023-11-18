@@ -5,6 +5,9 @@ import jwt_decode from 'jwt-decode';
 
 import Comment from './Comment';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+
 const SecretPage = () => {
     const [secret, setSecret] = useState('');
     const [comments, setComments] = useState([]);
@@ -69,7 +72,9 @@ const SecretPage = () => {
       ) : (
         <p>Loading...</p>
       )}
-        <Link className="btn btn-dark" to="/home">Home</Link>
+        <Link to="/home" className="btn btn-dark home-navigator">
+          <FontAwesomeIcon icon={faHome} /> 
+        </Link>
       {/* Comment Form */}
       <form onSubmit={handleCommentSubmit}>
         <div className="form-group">

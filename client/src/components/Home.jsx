@@ -4,6 +4,11 @@ import jwt_decode from 'jwt-decode';
 import axios from 'axios';
 import SecretPost from './SecretPost';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+
+
 const Home = () => {
   const [userName, setUserName] = useState('');
   const [uid, setUserId] = useState('');
@@ -59,30 +64,19 @@ const Home = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Welcome, {userName}!</h2>
-      <button className="btn btn-dark" onClick={handleLogout}>
-        Logout
+      <h2 className='home-contents'>Welcome, {userName}!</h2>
+      <button className="btn btn-outline-dark logout-button" onClick={handleLogout}>
+        <FontAwesomeIcon icon={faSignOutAlt} /> Log out
       </button>
-      <Link to="/compose" className="btn btn-dark">
-        Compose
+      <Link to="/compose" className="btn btn-dark home-contents">
+        Share a secret
       </Link>
-      <button className="btn btn-dark" onClick={handleProfileRedirect}>
-        Your Profile
+      <button className="btn btn-dark profile-button" onClick={handleProfileRedirect}>
+        <FontAwesomeIcon icon={faUser} /> {userName}
       </button>
-      <h3 className="mt-3">Posted Secrets</h3>
-      {/* {secrets.map((secret) => (
-        <div key={secret._id} className="card mb-3">
-          <div className="card-body">
-            <p className="card-text">{secret.content}</p>
-            <p className="card-text">Posted at: {new Date(secret.createdAt).toLocaleString()}</p>
-            <Link to={`/secret/${secret._id}`} className="btn btn-dark">
-              View Secret
-            </Link>
-          </div>
-        </div>
-      ))} */}
+      <h3 className="mt-3 home-contents">Home</h3>
       <SecretPost secrets={secrets} />
-    </div>
+    </div>  
   );
 };
 
