@@ -1,43 +1,41 @@
-# services : is a list of our container
+# services : is a list of containers
 services:
-  # name is optional for our mongodb
+  # MongoDB Container Name
   mymongodb:
     # since mongo is an offical image we can use it.
     image: "mongo"
 
-    # the port that we want to publish for mongodb
+    # MongoDB server port
     ports:
       - "27017:27017"
 
-    # our mongodb depends on volume to keep the data alive.
+    # Mongodb depends on volume to keep the data alive.
     volumes:
       - data:/data/db
 
-    # our environment variable
+    # Environment variables
     environment:
       MONGO_INITDB_ROOT_USERNAME: "rezwan"
       MONGO_INITDB_ROOT_PASSWORD: "12345"
 
-  # name is optional for our backend
+  # Server
   backend:
-    # to build an image based on Dockerfile
-    # it looks in this folder to find Dockerfile to build an image
+    # Build an image based on Dockerfile in /server
     build: ./server
-    # the port that we want to publish for backend
+    # Backend Port
     ports:
       - "5000:5000"
 
-    # depends_on means it will start our backend container once mongo-container is  up and running.
+    # Depends on MongoDB to run
     depends_on:
       - mymongodb
 
-  # name is optional for our frontend
+  # Client
   frontend:
-    # to build an image based on Dockerfile
-    # it looks in this folder to find Dockerfile to build an image
+    # Build an image based on Dockerfile in /client
     build: ./client
 
-    # the port that we want to publish for frontend
+    # Client port
     ports:
       - "3000:3000"
     # add bind mount volume to keep have updated source code
@@ -47,7 +45,7 @@ services:
     stdin_open: true
     tty: true
 
-    # it will start our frontend container once backend-container is  up and running.
+    # Client depends on server, which depends on backend
     depends_on:
       - backend
 
