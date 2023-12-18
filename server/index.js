@@ -17,15 +17,16 @@ const app = express();
 const port = 5000;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI_DOCKER, {
-     useNewUrlParser: true, 
-     useUnifiedTopology: true })
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB server:', error);
-  });
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch((error) => {
+        console.error('Error connecting to MongoDB server:', error);
+    });
 
 // Middleware setup
 app.use(express.json());
@@ -70,27 +71,27 @@ app.route("/login")
         const { email, password } = req.body;
 
         try {
-        // Check if the user exists based on the provided email
-        const user = await User.findOne({ email });
+            // Check if the user exists based on the provided email
+            const user = await User.findOne({ email });
 
-        if (!user) {
-            // User with the given email not found
-            return res.status(404).json({ error: 'User not found' });
-        }
+            if (!user) {
+                // User with the given email not found
+                return res.status(404).json({ error: 'User not found' });
+            }
 
-        // Compare the provided password with the hashed password stored in the database
-        const passwordMatch = await bcrypt.compare(password, user.password);
+            // Compare the provided password with the hashed password stored in the database
+            const passwordMatch = await bcrypt.compare(password, user.password);
 
-        if (!passwordMatch) {
-            // Incorrect password
-            return res.status(401).json({ error: 'Invalid password' });
-        }
+            if (!passwordMatch) {
+                // Incorrect password
+                return res.status(401).json({ error: 'Invalid password' });
+            }
 
-        // If the email and password are valid, generate a token
-        const token = jwt.sign({ userId: user._id, username: user.username }, process.env.JWT_SECRET);
+            // If the email and password are valid, generate a token
+            const token = jwt.sign({ userId: user._id, username: user.username }, process.env.JWT_SECRET);
 
-        // Return the token to the frontend
-        res.status(200).json({ message: 'Login success', token });
+            // Return the token to the frontend
+            res.status(200).json({ message: 'Login success', token });
 
         } catch (error) {
             console.error('Error logging in user:', error);
@@ -142,7 +143,7 @@ app.route('/secret/:secretId')
 
             // Fetch comments by secretId
             const allComments = await Comment.find({ secret: secretId }).sort({ createdAt: -1 });
-            
+
             if (!secret) {
                 // Secret not found
                 return res.status(404).json({ error: 'Secret not found' });
@@ -162,9 +163,9 @@ app.route('/secret/:secretId')
         try {
             // Create a new comment
             const newComment = new Comment({
-            content,
-            user: username, // Store the username instead of userId
-            secret: secretId,
+                content,
+                user: username, // Store the username instead of userId
+                secret: secretId,
             });
 
             // Save the new comment to the database
@@ -181,15 +182,70 @@ app.route('/secret/:secretId')
 // Home route
 app.route('/home')
     .get(async (req, res) => {
+        const userId = req.body.uid;
         try {
-          // Find all secrets in the database
-          const secrets = await Secret.find().sort({ createdAt: -1 });
-      
-          // Return the secrets as a response
-          res.status(200).json({ secrets });
+            // Find all secrets in the database
+            const secrets = await Secret.find().sort({ createdAt: -1 });
+
+            // Create an array to store the formatted data
+            const secretsWithUserLiked = [];
+
+            // Loop through each secret and check if the current user has liked it
+            for (const secret of secrets) {
+                // Check if the current user's ID is in the likedUsers array
+                const userLiked = secret.likedUsers.includes(userId);
+
+                // Create a new object with secret and userLiked information
+                const formattedSecret = {
+                    secret: secret,
+                    userLiked: userLiked,
+                };
+
+                // Push the formatted object to the array
+                secretsWithUserLiked.push(formattedSecret);
+            }
+            console.log(secretsWithUserLiked);
+            // Return the formatted data as a response
+            res.status(200).json({ secrets: secretsWithUserLiked });
         } catch (error) {
-          console.error('Error fetching secrets:', error);
-          res.status(500).json({ error });
+            console.error('Error fetching secrets:', error);
+            res.status(500).json({ error });
+        }
+    });
+
+// /like/secretId route
+app.route("/like/:secretId")
+    .post(async (req, res) => {
+        const { secretId } = req.params;
+        const { userId } = req.body;
+
+        try {
+            // Find the secret by ID
+            const secret = await Secret.findById(secretId);
+
+            if (!secret) {
+                return res.status(404).json({ error: 'Secret not found' });
+            }
+
+            // Check if the user has already liked the secret
+            const userLiked = secret.likedUsers.includes(userId);
+
+            // Toggle like status
+            if (userLiked) {
+                // If liked, unlike by removing the user ID from the likedUsers array
+                secret.likedUsers = secret.likedUsers.filter((id) => id !== userId);
+            } else {
+                // If not liked, like by adding the user ID to the likedUsers array
+                secret.likedUsers.push(userId);
+            }
+
+            // Save the updated secret to the database
+            const updatedSecret = await secret.save();
+
+            res.status(200).json({ secret: updatedSecret });
+        } catch (error) {
+            console.error('Error updating like:', error);
+            res.status(500).json({ error });
         }
     });
 
@@ -204,7 +260,7 @@ app.route("/:uid")
             const userSecrets = await Secret.find({ user: uid }).sort({ createdAt: -1 });
 
             // Send the secrets posted by the user to the client
-            res.status(200).json({message: "Loaded successfully", userSecrets});
+            res.status(200).json({ message: "Loaded successfully", userSecrets });
         } catch (error) {
             console.error('Error fetching secrets:', error);
             res.status(500).json({ error });
@@ -213,5 +269,5 @@ app.route("/:uid")
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+    console.log(`Server listening on port ${port}`);
 });
