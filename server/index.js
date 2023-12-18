@@ -204,7 +204,6 @@ app.route('/home')
                 // Push the formatted object to the array
                 secretsWithUserLiked.push(formattedSecret);
             }
-            console.log(secretsWithUserLiked);
             // Return the formatted data as a response
             res.status(200).json({ secrets: secretsWithUserLiked });
         } catch (error) {
@@ -216,33 +215,45 @@ app.route('/home')
 // /like/secretId route
 app.route("/like/:secretId")
     .post(async (req, res) => {
-        const { secretId } = req.params;
-        const { userId } = req.body;
+        const secretId = req.params.secretId;
+        const userId = req.body.userId;
 
         try {
             // Find the secret by ID
             const secret = await Secret.findById(secretId);
+            const user = await User.findById(userId);
 
             if (!secret) {
                 return res.status(404).json({ error: 'Secret not found' });
             }
 
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
             // Check if the user has already liked the secret
-            const userLiked = secret.likedUsers.includes(userId);
+            var userLiked = false;
+            for (u of secret.likedUsers) {
+                if (u._id.toString() === user._id.toString()) {
+                    userLiked = true;
+                    break;
+                }
+            }
 
             // Toggle like status
             if (userLiked) {
                 // If liked, unlike by removing the user ID from the likedUsers array
-                secret.likedUsers = secret.likedUsers.filter((id) => id !== userId);
+                secret.likedUsers = secret.likedUsers.filter((u) => u._id.toString() !== user._id.toString());
             } else {
                 // If not liked, like by adding the user ID to the likedUsers array
-                secret.likedUsers.push(userId);
+                secret.likedUsers = [...secret.likedUsers, user];
             }
 
             // Save the updated secret to the database
             const updatedSecret = await secret.save();
 
-            res.status(200).json({ secret: updatedSecret });
+            // Respond with the updated secret and the current like status for the user
+            res.status(200).json({ secret: updatedSecret, liked: !userLiked });
         } catch (error) {
             console.error('Error updating like:', error);
             res.status(500).json({ error });
@@ -254,7 +265,6 @@ app.route("/like/:secretId")
 app.route("/:uid")
     .get(async (req, res) => {
         const uid = req.params.uid;
-
         try {
             // Load all secrets posted by the user
             const userSecrets = await Secret.find({ user: uid }).sort({ createdAt: -1 });
