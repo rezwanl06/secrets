@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import SecretPost from './SecretPost';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,7 +13,6 @@ const Profile = () => {
   const token = localStorage.getItem('token');
   const decodedToken = jwt_decode(token);
   const userId = decodedToken.userId;
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Function to fetch the user's secrets
@@ -29,13 +28,7 @@ const Profile = () => {
 
     // Call the function to fetch the user's secrets
     fetchUserSecrets();
-  }, [userId]);
-
-  // Function to handle viewing a secret
-  const handleViewSecret = (secretId) => {
-    // Redirect the user to the individual secret page using the secretId
-    navigate(`/secret/${secretId}`);
-  };
+  }, [userId, userSecrets]);
 
   return (
     <div className="container mt-5">

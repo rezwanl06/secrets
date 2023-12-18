@@ -32,6 +32,25 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use(express.json());
 app.use(cors());
 
+// Helper functions
+// Function to format secrets
+const formatSecrets = (secrets, userId) => {
+    const secretsWithUserLiked = [];
+
+    for (const secret of secrets) {
+        const userLiked = secret.likedUsers.includes(userId);
+
+        const formattedSecret = {
+            secret: secret,
+            userLiked: userLiked,
+        };
+
+        secretsWithUserLiked.push(formattedSecret);
+    }
+
+    return secretsWithUserLiked;
+};
+
 // register route
 app.route('/register')
     .post(async (req, res) => {
@@ -183,29 +202,16 @@ app.route('/secret/:secretId')
 app.route('/home')
     .get(async (req, res) => {
         const userId = req.body.uid;
+
         try {
             // Find all secrets in the database
             const secrets = await Secret.find().sort({ createdAt: -1 });
 
-            // Create an array to store the formatted data
-            const secretsWithUserLiked = [];
+            // Format secrets
+            const formattedSecrets = formatSecrets(secrets, userId);
 
-            // Loop through each secret and check if the current user has liked it
-            for (const secret of secrets) {
-                // Check if the current user's ID is in the likedUsers array
-                const userLiked = secret.likedUsers.includes(userId);
-
-                // Create a new object with secret and userLiked information
-                const formattedSecret = {
-                    secret: secret,
-                    userLiked: userLiked,
-                };
-
-                // Push the formatted object to the array
-                secretsWithUserLiked.push(formattedSecret);
-            }
             // Return the formatted data as a response
-            res.status(200).json({ secrets: secretsWithUserLiked });
+            res.status(200).json({ secrets: formattedSecrets });
         } catch (error) {
             console.error('Error fetching secrets:', error);
             res.status(500).json({ error });
@@ -262,20 +268,23 @@ app.route("/like/:secretId")
 
 
 // UserId route
-app.route("/:uid")
-    .get(async (req, res) => {
-        const uid = req.params.uid;
-        try {
-            // Load all secrets posted by the user
-            const userSecrets = await Secret.find({ user: uid }).sort({ createdAt: -1 });
+app.route("/:uid").get(async (req, res) => {
+    const uid = req.params.uid;
 
-            // Send the secrets posted by the user to the client
-            res.status(200).json({ message: "Loaded successfully", userSecrets });
-        } catch (error) {
-            console.error('Error fetching secrets:', error);
-            res.status(500).json({ error });
-        }
-    });
+    try {
+        // Load all secrets posted by the user
+        const userSecrets = await Secret.find({ user: uid }).sort({ createdAt: -1 });
+
+        // Format secrets
+        const formattedSecrets = formatSecrets(userSecrets, uid);
+
+        // Send the secrets posted by the user to the client
+        res.status(200).json({ message: "Loaded successfully", userSecrets: formattedSecrets });
+    } catch (error) {
+        console.error('Error fetching secrets:', error);
+        res.status(500).json({ error });
+    }
+});
 
 // Start the server
 app.listen(port, () => {
