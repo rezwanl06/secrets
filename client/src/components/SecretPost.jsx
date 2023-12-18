@@ -26,7 +26,7 @@ const SecretPost = ({ secrets }) => {
       setUpdatedSecrets(secrets);
     }
 
-  }, []);
+  }, [secrets]);
 
   const handleLike = async (secretId) => {
     try {
