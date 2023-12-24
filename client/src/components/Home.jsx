@@ -33,11 +33,11 @@ const Home = () => {
 
         setUserId(userId);
 
-        // Fetch all posted secrets
         fetchSecrets();
+        
     }
     
-  }, []);
+  }, [secrets]);
 
   const fetchSecrets = async () => {
     try {

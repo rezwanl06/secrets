@@ -75,3 +75,11 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.btn-like, .btn-comment {
+    padding: 0.5rem;
+}
+
+.btn-like {
+    margin-right: 1em;
+}

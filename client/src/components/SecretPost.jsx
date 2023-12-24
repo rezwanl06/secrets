@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faComment } from '@fortawesome/free-solid-svg-icons';
 
 const SecretPost = ({ secrets }) => {
   const [uid, setUserId] = useState('');
@@ -56,20 +57,20 @@ const SecretPost = ({ secrets }) => {
 
   return (
     <div>
-      {secrets.map(({ secret, userLiked }) => (
+      {secrets.map(({ secret, userLiked, comments }) => (
         <div key={secret._id} className="card mb-3">
           <div className="card-body">
             <p className="card-text">{secret.content}</p>
             <p className="card-text">{new Date(secret.createdAt).toLocaleString()}</p>
             <button
               onClick={() => handleLike(secret._id)}
-              className={`btn btn-dark ${userLiked ? 'text-danger' : 'text-white'}`}
+              className={`btn-like btn btn-dark ${userLiked ? 'text-danger' : 'text-white'}`}
             >
               <FontAwesomeIcon icon={faHeart} className="mr-2" />
               {secret.likedUsers.length}
             </button>
-            <Link to={`/secret/${secret._id}`} className="btn btn-dark">
-              View Comments
+            <Link to={`/secret/${secret._id}`} className="btn btn-dark btn-comment">
+              <FontAwesomeIcon icon={faComment} className='mr-2' /> {comments}
             </Link>
           </div>
         </div>

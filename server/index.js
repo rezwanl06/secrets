@@ -34,17 +34,24 @@ app.use(cors());
 
 // Helper functions
 // Function to format secrets
-const formatSecrets = (secrets, userId) => {
+const formatSecrets = async (secrets, userId) => {
     const secretsWithUserLiked = [];
 
     for (const secret of secrets) {
         const userLiked = secret.likedUsers.includes(userId);
-
+        try {
+            var numberOfComments = await Comment.countDocuments({ secret: secret._id });
+        } catch (error) {
+            console.error('Error counting comments:', error);
+            numberOfComments = 0; // Set a default value
+        }
+    
         const formattedSecret = {
             secret: secret,
             userLiked: userLiked,
+            comments: numberOfComments || 0
         };
-
+    
         secretsWithUserLiked.push(formattedSecret);
     }
 
@@ -208,7 +215,9 @@ app.route('/home')
             const secrets = await Secret.find().sort({ createdAt: -1 });
 
             // Format secrets
-            const formattedSecrets = formatSecrets(secrets, userId);
+            const formattedSecrets = await formatSecrets(secrets, userId);
+
+            //console.log(formattedSecrets.length);
 
             // Return the formatted data as a response
             res.status(200).json({ secrets: formattedSecrets });
@@ -276,7 +285,7 @@ app.route("/:uid").get(async (req, res) => {
         const userSecrets = await Secret.find({ user: uid }).sort({ createdAt: -1 });
 
         // Format secrets
-        const formattedSecrets = formatSecrets(userSecrets, uid);
+        const formattedSecrets = await formatSecrets(userSecrets, uid);
 
         // Send the secrets posted by the user to the client
         res.status(200).json({ message: "Loaded successfully", userSecrets: formattedSecrets });
